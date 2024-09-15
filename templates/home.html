@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteka</title>
+    <link rel="stylesheet" href="../static/css/home.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="title">
+        <h1>Moje Knjige</h1>
+    </div>
+</div>
+
+<div class="container">
+    {% for book in books %}
+    <div class="content">
+        <div class="book-details">
+            <h2>{{ book.title }}<span class="tag">{{ book.year }}</span></h2>
+            <p>Autor: {{ ', '.join(book.authors) }}</p>
+        </div>
+
+        <div class="audio-player" data-index="{{ loop.index }}">
+            <div class="audio-controls">
+                <button class="play-pause-btn" data-index="{{ loop.index }}">
+                    <svg class="playIcon" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24">
+                        <path d="M320 840V312l480 264-480 264Z"/>
+                    </svg>
+                    <svg class="pauseIcon" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24" style="display:none;">
+                        <path d="M600 840V312h120v528H600Zm-360 0V312h120v528H240Z"/>
+                    </svg>
+                </button>
+                <div class="progress-bar" data-index="{{ loop.index }}">
+                    <div class="progress-bar-fill" data-index="{{ loop.index }}"></div>
+                </div>
+                <span class="time-left" data-index="{{ loop.index }}">0:00</span>
+            </div>
+        </div>
+        <audio class="audioPlayer" src="{{ book.files[0] }}" data-index="{{ loop.index }}"></audio>
+    </div>
+    {% endfor %}
+
+</div>
+
+<script>
+
+const playPauseBtns = document.querySelectorAll('.play-pause-btn');
+
+playPauseBtns.forEach(playPauseBtn => {
+    const index = playPauseBtn.getAttribute('data-index');
+    const audioPlayer = document.querySelector(`audio[data-index="${index}"]`);
+    const playIcon = playPauseBtn.querySelector('.playIcon');
+    const pauseIcon = playPauseBtn.querySelector('.pauseIcon');
+    const progressBar = document.querySelector(`.progress-bar[data-index="${index}"]`);
+    const progressBarFill = document.querySelector(`.progress-bar-fill[data-index="${index}"]`);
+    const timeLeft = document.querySelector(`.time-left[data-index="${index}"]`);
+
+    playPauseBtn.addEventListener('click', () => {
+        if (audioPlayer.paused) {
+            audioPlayer.play();
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+        } else {
+            audioPlayer.pause();
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+        }
+    });
+
+    audioPlayer.addEventListener('timeupdate', () => {
+        const currentTime = audioPlayer.currentTime;
+        const duration = audioPlayer.duration;
+        const progressPercentage = (currentTime / duration) * 100;
+        progressBarFill.style.width = `${progressPercentage}%`;
+
+        const timeLeftInSeconds = duration - currentTime;
+        const minutesLeft = Math.floor(timeLeftInSeconds / 60);
+        const secondsLeft = Math.floor(timeLeftInSeconds % 60);
+        timeLeft.textContent = `${minutesLeft}:${secondsLeft < 10 ? '0' : ''}${secondsLeft}`;
+    });
+
+    audioPlayer.addEventListener('ended', () => {
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+        progressBarFill.style.width = '0%';
+        timeLeft.textContent = '0:00';
+    });
+
+    progressBar.addEventListener('click', (e) => {
+        const progressBarWidth = progressBar.clientWidth;
+        const clickPosition = e.offsetX;
+        const duration = audioPlayer.duration;
+        const newTime = (clickPosition / progressBarWidth) * duration;
+        audioPlayer.currentTime = newTime;
+    });
+});
+
+</script>
+
+</body>
+</html>

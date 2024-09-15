@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prijava</title>
+    <link rel="stylesheet" href="../static/css/login.css">
+</head>
+<body>
+
+<div class="title">
+    <h1>Slušaj Priču</h1>
+</div>
+
+<div class="form-container">
+    <h1>Prijava</h1>
+
+    {% if error %}
+    <p>{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <label for="library">Biblioteka:</label>
+        <select name="library_code" required>
+            <option value="" disabled selected>Izaberi svoju Biblioteku</option>
+            {% for library in libraries %}
+            <option value="{{ library.library_code }}">{{ library.library_name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="ime">Ime:</label>
+        <input type="text" name="ime" required>
+
+        <label for="broj_kartice">Broj članske karte:</label>
+        <input type="text" name="broj_kartice" required>
+
+        <button type="submit" class="button">Prijava</button>
+    </form>
+</div>
+</body>
+</html>
