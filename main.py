@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort
 from biblioteka.utils.constants import LAT_TO_CLEAN_LAT, KNJIGE_PATH
 from srtools import cyrillic_to_latin
 import requests
@@ -12,7 +12,13 @@ app.secret_key = 'key'
 
 @app.route('/knjige/<path:filename>')
 def serve_audio_files(filename):
-    return send_from_directory('knjige', filename)
+    if 'user' not in session:
+        return redirect(url_for('login'))
+
+    try:
+        return send_from_directory('knjige', filename)
+    except FileNotFoundError:
+        abort(404)
 
 
 @app.route('/', methods=['GET', 'POST'])
